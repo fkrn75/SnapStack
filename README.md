@@ -3,7 +3,7 @@
 > **찍고(Snap) → 쌓고(Stack) → 그리고 → 붙여넣는다.**
 > 알캡쳐(ALCapture) 류의 Windows 화면 캡쳐 · 주석 · 클립보드 도구 (개인용 / 포트폴리오)
 
-![status](https://img.shields.io/badge/status-planning-orange)
+![status](https://img.shields.io/badge/status-development-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%2F11-blue)
 ![stack](https://img.shields.io/badge/.NET%208-WPF-512BD4)
 ![license](https://img.shields.io/badge/license-MIT-green)
@@ -12,10 +12,10 @@
 
 ## 🚧 현재 상태
 
-**계획 단계** — 아직 코드는 없으며, 설계 문서를 먼저 작성 중입니다.
+**설계 완료 · MVP 구현 착수** — 개발계획서·상세 기능명세서 작성 완료, .NET SDK 준비 후 구현 단계로 진입합니다.
 
 - 📄 [개발계획서 (DEVELOPMENT_PLAN.md)](docs/DEVELOPMENT_PLAN.md) ✅
-- 📄 기능명세서 (FUNCTIONAL_SPEC.md) — 예정
+- 📄 [상세 기능명세서 (FUNCTIONAL_SPEC.md)](docs/FUNCTIONAL_SPEC.md) ✅
 
 ## ✨ 핵심 기능 (목표)
 
