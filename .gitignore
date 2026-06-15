@@ -1,0 +1,73 @@
+# ──────────────────────────────────────────────
+# .NET / Visual Studio / WPF .gitignore
+# ──────────────────────────────────────────────
+
+# 빌드 산출물
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+build/
+bld/
+[Pp]ublish/
+publish/
+*.dll
+*.exe
+*.pdb
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.rsuser
+
+# Rider / JetBrains
+.idea/
+
+# VS Code (설정은 선택적으로 공유 가능 — 기본은 무시)
+.vscode/
+
+# 테스트 / 커버리지
+[Tt]est[Rr]esult*/
+*.coverage
+*.coveragexml
+coverage/
+
+# 패키지 / 복원
+*.nupkg
+*.snupkg
+packages/
+!packages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# 게시 프로필 출력
+PublishScripts/
+*.publishsettings
+
+# 로그 / 임시
+*.log
+*.tmp
+*.cache
+~$*
+*~
+
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# 앱 로컬 설정/캐시 (런타임 생성)
+/captures/
+*.local.json
