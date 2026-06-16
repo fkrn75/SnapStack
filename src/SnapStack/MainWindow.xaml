@@ -5,40 +5,60 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SnapStack"
         mc:Ignorable="d"
-        Title="SnapStack" Height="600" Width="900"
+        Title="SnapStack" Height="640" Width="960"
         WindowStartupLocation="CenterScreen">
     <DockPanel>
-        <!-- 상단: 캡쳐 도구바 (TODO §2 CaptureService 연결) -->
+        <!-- 상단: 캡쳐/출력 도구바 (§2 캡쳐 · §4.2 복사 · §4.4 저장) -->
         <Border DockPanel.Dock="Top" Background="#2D2D30" Padding="8">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="SnapStack" Foreground="White" FontWeight="Bold"
                            VerticalAlignment="Center" Margin="0,0,16,0"/>
-                <Button Content="영역 캡쳐" Margin="2" Padding="10,4"/>
-                <Button Content="창 캡쳐" Margin="2" Padding="10,4"/>
-                <Button Content="전체화면" Margin="2" Padding="10,4"/>
-                <Button Content="지연" Margin="2" Padding="10,4"/>
+                <Button Content="영역 캡쳐" Command="{Binding CaptureRegionCommand}" Margin="2" Padding="10,4"/>
+                <Button Content="창 캡쳐" Command="{Binding CaptureWindowCommand}" Margin="2" Padding="10,4"/>
+                <Button Content="전체화면" Command="{Binding CaptureFullScreenCommand}" Margin="2" Padding="10,4"/>
+                <Button Content="지연(3초)" Command="{Binding CaptureDelayedCommand}" Margin="2" Padding="10,4"/>
+                <Separator Margin="8,0" Background="#555" Width="1"/>
+                <Button Content="복사" Command="{Binding CopyCommand}" Margin="2" Padding="10,4"/>
+                <Button Content="저장" Command="{Binding SaveCommand}" Margin="2" Padding="10,4"/>
+                <Button Content="삭제" Command="{Binding DeleteCommand}" Margin="2" Padding="10,4"/>
+                <Button Content="전체 비우기" Command="{Binding ClearHistoryCommand}" Margin="2" Padding="10,4"/>
             </StackPanel>
         </Border>
 
-        <!-- 하단: 히스토리 썸네일 스트립 (TODO §4.1 HistoryService 바인딩) -->
-        <Border DockPanel.Dock="Bottom" Background="#252526" Height="120">
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                <ItemsControl x:Name="HistoryStrip">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
-            </ScrollViewer>
+        <!-- 하단: 상태바 -->
+        <Border DockPanel.Dock="Bottom" Background="#007ACC" Padding="10,5">
+            <TextBlock Text="{Binding Status}" Foreground="White"/>
         </Border>
 
-        <!-- 중앙: 미리보기 (TODO §4.1 HIS-02 선택 항목 EffectiveImage 표시) -->
+        <!-- 하단: 히스토리 썸네일 스트립 (순서대로 — §4.1 HIS-01) -->
+        <Border DockPanel.Dock="Bottom" Background="#252526" Height="124">
+            <ListBox ItemsSource="{Binding History}" SelectedItem="{Binding Selected, Mode=TwoWay}"
+                     Background="Transparent" BorderThickness="0"
+                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                     ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Width="100" Margin="2">
+                            <Image Source="{Binding Thumbnail}" Height="74" Margin="2" Stretch="Uniform"/>
+                            <TextBlock Text="{Binding Sequence, StringFormat='#{0}'}"
+                                       Foreground="#BBBBBB" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+
+        <!-- 중앙: 미리보기 (선택 항목 EffectiveImage — §4.1 HIS-02) -->
         <Grid Background="#1E1E1E">
-            <TextBlock Text="캡쳐를 시작하세요  (영역 캡쳐: Ctrl+Shift+A)"
-                       Foreground="#888888" FontSize="16"
+            <TextBlock Text="캡쳐를 시작하세요  ·  버튼을 누르면 화면이 히스토리에 순서대로 쌓입니다"
+                       Foreground="#777777" FontSize="15"
                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <Image x:Name="PreviewImage" Stretch="Uniform" Margin="12"/>
+            <Image Source="{Binding Preview}" Stretch="Uniform" Margin="14"/>
         </Grid>
     </DockPanel>
 </Window>
