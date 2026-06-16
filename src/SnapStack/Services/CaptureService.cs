@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
@@ -44,8 +45,60 @@ public sealed class CaptureService : ICaptureService
         return _history.Add(bmp, new System.Windows.Size(r.Width, r.Height), DateTime.Now, CaptureMode.LastRegion);
     }
 
-    // MVP: 창 캡쳐는 영역 선택으로 대체(향후 WindowFromPoint 자동 인식). CAP-02.
-    public Task<CaptureItem?> CaptureWindowAsync() => CaptureRegionAsync();
+    // 창 캡쳐(CAP-02): 오버레이로 창을 가리켜 클릭 → 그 창만 PrintWindow로 캡쳐(가려져도 OK).
+    public async Task<CaptureItem?> CaptureWindowAsync()
+    {
+        var hwnd = await Views.WindowPickerOverlay.SelectWindowAsync();
+        if (hwnd == IntPtr.Zero) return null;
+
+        await Task.Delay(80); // 오버레이가 완전히 사라진 뒤(폴백 BitBlt 대비)
+        var bmp = CaptureWindow(hwnd);
+        if (bmp is null) return null;
+
+        return _history.Add(bmp, new System.Windows.Size(bmp.PixelWidth, bmp.PixelHeight),
+            DateTime.Now, CaptureMode.Window);
+    }
+
+    /// <summary>
+    /// 창 핸들을 PrintWindow(PW_RENDERFULLCONTENT)로 캡쳐하고 드롭섀도 영역을 크롭한다.
+    /// PrintWindow 실패 시 가시 경계 화면 BitBlt로 폴백.
+    /// </summary>
+    private static BitmapSource? CaptureWindow(IntPtr hwnd)
+    {
+        if (!NativeMethods.GetWindowRect(hwnd, out var full) || full.Width <= 0 || full.Height <= 0)
+            return null;
+        int fw = full.Width, fh = full.Height;
+
+        // 드롭섀도 제외 가시 경계(크롭 기준)
+        bool hasVis = NativeMethods.DwmGetWindowAttribute(hwnd, NativeMethods.DWMWA_EXTENDED_FRAME_BOUNDS,
+            out NativeMethods.RECT vis, Marshal.SizeOf<NativeMethods.RECT>()) == 0 && vis.Width > 0 && vis.Height > 0;
+        if (!hasVis) vis = full;
+
+        using var bmpFull = new Bitmap(fw, fh, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        bool ok;
+        using (var g = Graphics.FromImage(bmpFull))
+        {
+            IntPtr hdc = g.GetHdc();
+            try { ok = NativeMethods.PrintWindow(hwnd, hdc, NativeMethods.PW_RENDERFULLCONTENT); }
+            finally { g.ReleaseHdc(hdc); }
+        }
+
+        if (ok)
+        {
+            // GetWindowRect 공간에서 가시 경계만큼 크롭(섀도 여백 제거)
+            int ox = vis.Left - full.Left, oy = vis.Top - full.Top;
+            int cw = Math.Min(vis.Width, fw - ox), ch = Math.Min(vis.Height, fh - oy);
+            if (hasVis && ox >= 0 && oy >= 0 && cw > 0 && ch > 0 && (ox > 0 || oy > 0 || cw != fw || ch != fh))
+            {
+                using var cropped = bmpFull.Clone(new Rectangle(ox, oy, cw, ch), bmpFull.PixelFormat);
+                return ToBitmapSource(cropped);
+            }
+            return ToBitmapSource(bmpFull);
+        }
+
+        // 폴백: 가시 경계 화면 BitBlt(가려져 있으면 부정확할 수 있음)
+        return CaptureRect(vis.Left, vis.Top, vis.Width, vis.Height);
+    }
 
     public async Task<CaptureItem?> CaptureDelayedAsync(int seconds, CaptureMode mode)
     {

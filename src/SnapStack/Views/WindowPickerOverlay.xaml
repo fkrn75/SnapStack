@@ -1,0 +1,19 @@
+<Window x:Class="SnapStack.Views.WindowPickerOverlay"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None" AllowsTransparency="True"
+        Background="#01000000" Topmost="True" ShowInTaskbar="False"
+        ResizeMode="NoResize" Cursor="Hand">
+    <!-- 가상화면 전체를 덮는 거의 투명한 오버레이. 커서 아래 창을 하이라이트(CAP-02). -->
+    <Canvas x:Name="RootCanvas">
+        <Rectangle x:Name="HighlightRect"
+                   Stroke="#FF3399FF" StrokeThickness="3"
+                   Fill="#220099FF" Visibility="Collapsed"
+                   IsHitTestVisible="False"/>
+        <Border x:Name="HintLabel" Background="#CC000000" CornerRadius="3"
+                Padding="8,4" IsHitTestVisible="False">
+            <TextBlock Foreground="White" FontSize="13"
+                       Text="캡쳐할 창을 클릭하세요  ·  Esc / 우클릭 취소"/>
+        </Border>
+    </Canvas>
+</Window>
