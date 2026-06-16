@@ -1,19 +1,20 @@
-using SnapStack.Models;
+using System;
 
 namespace SnapStack.Services;
 
 /// <summary>
-/// 전역 단축키(§5 SYS-01). Win32 RegisterHotKey + WM_HOTKEY 후킹.
-/// 등록 실패(타 앱 선점)는 해당 키만 비활성하고 알린다.
+/// 전역 단축키 서비스(§5 SYS-01). Win32 RegisterHotKey + WM_HOTKEY 후킹.
+/// <see cref="Models.AppSettings.Hotkeys"/>(동작명 → 제스처 문자열)를 파싱해 등록하고,
+/// 핫키가 눌리면 동작명을 emit한다. 등록 실패(타 앱 선점)한 키는 건너뛴다.
 /// </summary>
-public interface IHotkeyService
+public interface IHotkeyService : IDisposable
 {
-    /// <summary>설정의 단축키 매핑으로 전역 핫키 등록(메인 윈도우 핸들 필요).</summary>
-    void Register(IntPtr windowHandle);
+    /// <summary>
+    /// 메인 윈도우 핸들로 초기화. HwndSource에 메시지 훅을 걸고 설정의 모든 핫키를 등록한다.
+    /// 등록 실패한 핫키(이미 점유된 조합)는 건너뛰고 계속한다.
+    /// </summary>
+    void Initialize(IntPtr hwnd);
 
-    /// <summary>전역 핫키 해제(앱 종료 시).</summary>
-    void Unregister();
-
-    /// <summary>핫키 발동 시 해당 캡쳐 모드를 전달.</summary>
-    event Action<CaptureMode>? Triggered;
+    /// <summary>핫키가 눌렸을 때 동작명(예: "CaptureRegion")을 전달한다.</summary>
+    event Action<string>? HotkeyPressed;
 }

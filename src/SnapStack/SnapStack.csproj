@@ -6,6 +6,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <!-- 시스템 트레이(System.Windows.Forms.NotifyIcon)용 — WPF와 병용 지원 -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- DPI는 WPF app.manifest(PerMonitorV2)로 설정하므로 WinForms의 WFAC010(매니페스트 DPI) 경고는 무시 -->
+    <NoWarn>$(NoWarn);WFAC010</NoWarn>
     <RootNamespace>SnapStack</RootNamespace>
     <AssemblyName>SnapStack</AssemblyName>
     <Version>0.1.0</Version>
@@ -18,8 +22,15 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <!-- DI 컨테이너 -->
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-    <!-- 화면 캡쳐(Graphics.CopyFromScreen / GDI BitBlt) -->
+    <!-- 화면 캡쳐(Graphics.CopyFromScreen / GDI BitBlt) · 트레이 아이콘 생성(System.Drawing) -->
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+  </ItemGroup>
+
+  <!-- UseWindowsForms가 주입하는 전역 using 제거 — WPF/System.Drawing 타입과 CS0104 충돌 방지.
+       트레이(TrayService)만 명시적 using/alias로 WinForms를 사용한다. -->
+  <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
   </ItemGroup>
 
 </Project>

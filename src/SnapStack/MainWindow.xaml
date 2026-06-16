@@ -18,10 +18,13 @@
                 <Button Content="전체화면" Command="{Binding CaptureFullScreenCommand}" Margin="2" Padding="10,4"/>
                 <Button Content="지연(3초)" Command="{Binding CaptureDelayedCommand}" Margin="2" Padding="10,4"/>
                 <Separator Margin="8,0" Background="#555" Width="1"/>
+                <Button Content="편집" Click="OpenEditor_Click" Margin="2" Padding="10,4"/>
                 <Button Content="복사" Command="{Binding CopyCommand}" Margin="2" Padding="10,4"/>
                 <Button Content="저장" Command="{Binding SaveCommand}" Margin="2" Padding="10,4"/>
                 <Button Content="삭제" Command="{Binding DeleteCommand}" Margin="2" Padding="10,4"/>
                 <Button Content="전체 비우기" Command="{Binding ClearHistoryCommand}" Margin="2" Padding="10,4"/>
+                <Separator Margin="8,0" Background="#555" Width="1"/>
+                <Button Content="설정" Click="OpenSettings_Click" Margin="2" Padding="10,4"/>
             </StackPanel>
         </Border>
 
@@ -34,6 +37,7 @@
         <Border DockPanel.Dock="Bottom" Background="#252526" Height="124">
             <ListBox ItemsSource="{Binding History}" SelectedItem="{Binding Selected, Mode=TwoWay}"
                      Background="Transparent" BorderThickness="0"
+                     MouseDoubleClick="History_MouseDoubleClick"
                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
                      ScrollViewer.VerticalScrollBarVisibility="Disabled">
                 <ListBox.ItemsPanel>

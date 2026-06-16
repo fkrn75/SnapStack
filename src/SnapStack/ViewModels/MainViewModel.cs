@@ -46,6 +46,9 @@ public partial class MainViewModel : ObservableObject
         if (!ReferenceEquals(_history.Selected, value)) _history.Selected = value;
     }
 
+    /// <summary>편집기에서 MarkEdited 후 미리보기를 최신 EffectiveImage로 갱신(편집본 반영). HIS-03.</summary>
+    public void RefreshSelectedPreview() => Preview = Selected?.EffectiveImage;
+
     [RelayCommand]
     private async Task CaptureRegion()
     {

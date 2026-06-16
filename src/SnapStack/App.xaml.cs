@@ -2,6 +2,7 @@ using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using SnapStack.Services;
 using SnapStack.ViewModels;
+using SnapStack.Views;
 
 namespace SnapStack;
 
@@ -33,9 +34,13 @@ public partial class App : Application
         services.AddSingleton<IClipboardService, ClipboardService>();    // §4.2 클립보드
         services.AddSingleton<IFileExportService, FileExportService>();  // §4.4 저장
         services.AddSingleton<ICaptureService, CaptureService>();        // §2 캡쳐
+        services.AddSingleton<IHotkeyService, HotkeyService>();          // §5 전역 단축키(SYS-01)
+        services.AddSingleton<ITrayService, TrayService>();             // §5 시스템 트레이(SYS-02)
 
         // 뷰모델 / 윈도우
         services.AddSingleton<MainViewModel>();
         services.AddSingleton<MainWindow>();
+        services.AddTransient<SettingsViewModel>();                     // §5 설정창(SYS-04)
+        services.AddTransient<SettingsWindow>();
     }
 }
