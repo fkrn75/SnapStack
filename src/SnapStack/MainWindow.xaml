@@ -1,0 +1,44 @@
+<Window x:Class="SnapStack.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SnapStack"
+        mc:Ignorable="d"
+        Title="SnapStack" Height="600" Width="900"
+        WindowStartupLocation="CenterScreen">
+    <DockPanel>
+        <!-- 상단: 캡쳐 도구바 (TODO §2 CaptureService 연결) -->
+        <Border DockPanel.Dock="Top" Background="#2D2D30" Padding="8">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="SnapStack" Foreground="White" FontWeight="Bold"
+                           VerticalAlignment="Center" Margin="0,0,16,0"/>
+                <Button Content="영역 캡쳐" Margin="2" Padding="10,4"/>
+                <Button Content="창 캡쳐" Margin="2" Padding="10,4"/>
+                <Button Content="전체화면" Margin="2" Padding="10,4"/>
+                <Button Content="지연" Margin="2" Padding="10,4"/>
+            </StackPanel>
+        </Border>
+
+        <!-- 하단: 히스토리 썸네일 스트립 (TODO §4.1 HistoryService 바인딩) -->
+        <Border DockPanel.Dock="Bottom" Background="#252526" Height="120">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <ItemsControl x:Name="HistoryStrip">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+
+        <!-- 중앙: 미리보기 (TODO §4.1 HIS-02 선택 항목 EffectiveImage 표시) -->
+        <Grid Background="#1E1E1E">
+            <TextBlock Text="캡쳐를 시작하세요  (영역 캡쳐: Ctrl+Shift+A)"
+                       Foreground="#888888" FontSize="16"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Image x:Name="PreviewImage" Stretch="Uniform" Margin="12"/>
+        </Grid>
+    </DockPanel>
+</Window>
