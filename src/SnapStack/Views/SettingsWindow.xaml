@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:SnapStack.ViewModels"
+        xmlns:ctl="clr-namespace:SnapStack.Views.Controls"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:SettingsViewModel}"
         Title="SnapStack 설정" Height="520" Width="560"
@@ -60,23 +61,42 @@
                 </StackPanel>
             </TabItem>
 
-            <!-- 단축키: 목록 표시(v1 표시 전용) -->
+            <!-- 단축키: 재지정 가능(HotkeyCaptureBox). 칸 클릭→키 조합 입력 -->
             <TabItem Header="단축키">
                 <DockPanel Margin="12">
                     <TextBlock DockPanel.Dock="Top" Foreground="#666"
-                               Text="전역 단축키 목록 (Ctrl+Shift+* 통일). 재지정은 후속 버전."
+                               Text="단축키 칸을 클릭한 뒤 원하는 키 조합을 누르세요. Esc/Backspace/Delete=비우기. 저장 시 적용됩니다."
                                Margin="0,0,0,8" TextWrapping="Wrap"/>
-                    <ListView ItemsSource="{Binding Hotkeys}">
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn Header="동작" Width="240"
-                                                DisplayMemberBinding="{Binding Action}"/>
-                                <GridViewColumn Header="단축키" Width="220"
-                                                DisplayMemberBinding="{Binding Gesture}"/>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
+                    <ItemsControl ItemsSource="{Binding Hotkeys}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="240"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Label}"
+                                               VerticalAlignment="Center"/>
+                                    <ctl:HotkeyCaptureBox Grid.Column="1"
+                                               Hotkey="{Binding Gesture, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                               MinWidth="200" Padding="6,4"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </DockPanel>
+            </TabItem>
+
+            <!-- 트레이: 닫기/최소화 동작(상주) -->
+            <TabItem Header="트레이">
+                <StackPanel Margin="12">
+                    <CheckBox Content="창을 닫으면 종료하지 않고 트레이로 최소화"
+                              IsChecked="{Binding MinimizeToTrayOnClose}" Margin="0,6"/>
+                    <CheckBox Content="창을 최소화하면 트레이로 숨김"
+                              IsChecked="{Binding MinimizeToTrayOnMinimize}" Margin="0,6"/>
+                    <TextBlock Foreground="#666" TextWrapping="Wrap" Margin="0,8,0,0"
+                               Text="트레이 아이콘을 두 번 클릭하거나 우클릭 → '열기'로 창을 다시 표시합니다. 완전히 종료하려면 트레이 우클릭 → '종료'를 사용하세요."/>
+                </StackPanel>
             </TabItem>
 
             <!-- 정보 -->

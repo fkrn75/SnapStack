@@ -93,6 +93,12 @@ public sealed class TrayService : ITrayService
         Raise("ShowMain");
     }
 
+    /// <summary>트레이 풍선 알림(NotifyIcon BalloonTip). 아이콘 미초기화면 무시.</summary>
+    public void ShowBalloon(string title, string text)
+    {
+        _icon?.ShowBalloonTip(3000, title, text, WinForms.ToolTipIcon.Info);
+    }
+
     private void Raise(string action) => CommandRequested?.Invoke(action);
 
     public void Dispose()

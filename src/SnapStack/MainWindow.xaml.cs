@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -19,13 +20,18 @@ public partial class MainWindow : Window
     private readonly MainViewModel _vm;
     private readonly IHotkeyService _hotkeys;
     private readonly ITrayService _tray;
+    private readonly ISettingsService _settings;
 
-    public MainWindow(MainViewModel viewModel, IHotkeyService hotkeys, ITrayService tray)
+    private bool _reallyExit;     // 트레이 '종료' 또는 트레이 상주 OFF에서의 진짜 종료 플래그
+    private bool _balloonShown;   // 첫 트레이 최소화 안내 풍선을 한 번만 표시
+
+    public MainWindow(MainViewModel viewModel, IHotkeyService hotkeys, ITrayService tray, ISettingsService settings)
     {
         InitializeComponent();
         _vm = viewModel;
         _hotkeys = hotkeys;
         _tray = tray;
+        _settings = settings;
         DataContext = viewModel;
 
         Loaded += OnLoaded;
@@ -45,10 +51,48 @@ public partial class MainWindow : Window
 
     private void OnClosed(object? sender, EventArgs e)
     {
+        // 서비스 Dispose는 App.OnExit(DI 컨테이너 정리)로 일임 — 트레이로 Hide만 된 경우 Dispose하면 안 되므로.
         _hotkeys.HotkeyPressed -= OnHotkeyPressed;
         _tray.CommandRequested -= OnTrayCommand;
-        _hotkeys.Dispose();
-        _tray.Dispose();
+    }
+
+    // ── 트레이 상주(close-to-tray) ──
+    // X 닫기: 트레이 상주가 켜져 있고 '진짜 종료'가 아니면 종료 대신 트레이로 숨긴다.
+    protected override void OnClosing(CancelEventArgs e)
+    {
+        base.OnClosing(e);
+        if (_reallyExit) return; // 진짜 종료 경로 — 그대로 닫힘
+
+        if (_settings.Current.MinimizeToTrayOnClose)
+        {
+            e.Cancel = true;
+            HideToTray();
+        }
+        else
+        {
+            // 트레이 상주 OFF: 닫기 = 앱 종료(OnExplicitShutdown이라 명시적으로 종료해야 함).
+            _reallyExit = true;
+            Application.Current.Shutdown();
+        }
+    }
+
+    // 최소화 시 트레이로 숨김(옵션).
+    protected override void OnStateChanged(EventArgs e)
+    {
+        base.OnStateChanged(e);
+        if (WindowState == WindowState.Minimized && _settings.Current.MinimizeToTrayOnMinimize)
+            HideToTray();
+    }
+
+    // 창을 트레이로 숨기고 첫 회에 한해 안내 풍선을 띄운다.
+    private void HideToTray()
+    {
+        Hide();
+        if (!_balloonShown)
+        {
+            _balloonShown = true;
+            _tray.ShowBalloon("SnapStack", "트레이에서 계속 실행 중입니다. 아이콘을 두 번 클릭하면 다시 열립니다.");
+        }
     }
 
     // ── 전역 단축키 / 트레이 동작 → 캡쳐 커맨드 디스패치 ──
@@ -64,6 +108,7 @@ public partial class MainWindow : Window
                 Activate();
                 break;
             case "Exit":
+                _reallyExit = true;     // OnClosing이 닫기를 취소하지 않도록
                 Application.Current.Shutdown();
                 break;
             default:

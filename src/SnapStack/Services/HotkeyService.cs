@@ -60,23 +60,52 @@ public sealed class HotkeyService : IHotkeyService
         _source = HwndSource.FromHwnd(hwnd);
         _source?.AddHook(WndProc);
 
-        RegisterAll();
+        RegisterAll(_settings.Current, out _);
     }
 
-    /// <summary>설정의 모든 핫키를 등록. 파싱/등록 실패 키는 건너뛴다.</summary>
-    private void RegisterAll()
+    /// <summary>
+    /// 설정 변경 후 핫키를 재적용한다. 등록을 전부 해제하고 settings로 다시 등록한다.
+    /// Initialize 전(핸들 없음)이면 아무 일도 하지 않고 빈 목록을 반환한다.
+    /// </summary>
+    public System.Collections.Generic.IReadOnlyList<string> Reapply(Models.AppSettings settings)
     {
-        foreach (var (action, gesture) in _settings.Current.Hotkeys)
+        ArgumentNullException.ThrowIfNull(settings);
+        if (_disposed) throw new ObjectDisposedException(nameof(HotkeyService));
+        if (_hwnd == IntPtr.Zero) return System.Array.Empty<string>(); // 아직 초기화 전
+
+        UnregisterAll();
+        RegisterAll(settings, out var failed);
+        return failed;
+    }
+
+    /// <summary>현재 등록된 모든 핫키를 해제하고 매핑을 비운다.</summary>
+    private void UnregisterAll()
+    {
+        foreach (var id in _actionsById.Keys)
+            UnregisterHotKey(_hwnd, id);
+        _actionsById.Clear();
+    }
+
+    /// <summary>
+    /// settings의 모든 핫키를 등록한다. 파싱/등록 실패 키는 건너뛰고,
+    /// 등록에 실패한 동작명을 failedActions로 돌려준다(SYS-01: 부분 실패해도 나머지는 계속).
+    /// </summary>
+    private void RegisterAll(Models.AppSettings settings, out System.Collections.Generic.IReadOnlyList<string> failedActions)
+    {
+        var failed = new System.Collections.Generic.List<string>();
+        foreach (var (action, gesture) in settings.Hotkeys)
         {
             if (string.IsNullOrWhiteSpace(gesture)) continue;
-            if (!TryParseGesture(gesture, out var mods, out var vk)) continue; // 파싱 실패 → 건너뜀
+            if (!TryParseGesture(gesture, out var mods, out var vk)) { failed.Add(action); continue; } // 파싱 실패
 
             int id = _nextId++;
             // NoRepeat로 키 홀드 시 연속 발동 방지
             if (RegisterHotKey(_hwnd, id, (uint)(mods | HotkeyModifiers.NoRepeat), vk))
                 _actionsById[id] = action;
-            // 실패(타 앱 선점 등)는 의도적으로 무시하고 다음 키로 진행(SYS-01).
+            else
+                failed.Add(action); // 타 앱 선점 등 등록 실패
         }
+        failedActions = failed;
     }
 
     /// <summary>

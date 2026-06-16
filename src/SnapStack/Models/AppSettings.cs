@@ -55,4 +55,11 @@ public sealed class AppSettings
         ["CaptureLastRegion"]  = "Ctrl+Shift+R",
         ["CaptureDelayed"]     = "Ctrl+Shift+D",
     };
+
+    // ── 트레이(§5 SYS-02) ──
+    /// <summary>메인창을 닫으면 종료하지 않고 트레이로 최소화(상주). 기본 ON.</summary>
+    public bool MinimizeToTrayOnClose { get; set; } = true;
+
+    /// <summary>메인창을 최소화하면 트레이로 숨김. 기본 OFF.</summary>
+    public bool MinimizeToTrayOnMinimize { get; set; }
 }

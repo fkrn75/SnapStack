@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using SnapStack.Services;
@@ -18,12 +19,22 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // 트레이 상주: 창을 닫거나 숨겨도 앱이 종료되지 않게 한다(종료는 트레이 '종료'에서 명시적으로만).
+        ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
         var services = new ServiceCollection();
         ConfigureServices(services);
         Services = services.BuildServiceProvider();
 
         var main = Services.GetRequiredService<MainWindow>();
         main.Show();
+    }
+
+    // 앱 종료 시 DI 컨테이너를 정리 → 싱글톤 IDisposable(TrayService·HotkeyService 등) 자동 Dispose.
+    protected override void OnExit(ExitEventArgs e)
+    {
+        (Services as IDisposable)?.Dispose();
+        base.OnExit(e);
     }
 
     private static void ConfigureServices(IServiceCollection services)

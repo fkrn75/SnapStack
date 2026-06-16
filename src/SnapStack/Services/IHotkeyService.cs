@@ -17,4 +17,11 @@ public interface IHotkeyService : IDisposable
 
     /// <summary>핫키가 눌렸을 때 동작명(예: "CaptureRegion")을 전달한다.</summary>
     event Action<string>? HotkeyPressed;
+
+    /// <summary>
+    /// 설정 변경 후 핫키를 재적용한다. 기존 등록을 모두 해제하고 settings의 핫키를 다시 등록한다.
+    /// Initialize 호출 전이면 아무 일도 하지 않는다.
+    /// </summary>
+    /// <returns>등록에 실패한(타 앱 선점 등) 동작명 목록. 전부 성공이면 빈 목록.</returns>
+    System.Collections.Generic.IReadOnlyList<string> Reapply(Models.AppSettings settings);
 }

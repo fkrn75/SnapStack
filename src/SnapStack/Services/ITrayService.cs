@@ -18,4 +18,7 @@ public interface ITrayService : IDisposable
     /// action: "ShowMain" / "CaptureRegion" / "CaptureFullScreen" / "Exit".
     /// </summary>
     event Action<string>? CommandRequested;
+
+    /// <summary>트레이 아이콘에서 풍선 알림을 띄운다(예: 창을 트레이로 숨겼을 때 안내).</summary>
+    void ShowBalloon(string title, string text);
 }
