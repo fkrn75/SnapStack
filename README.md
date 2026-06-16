@@ -3,53 +3,86 @@
 > **찍고(Snap) → 쌓고(Stack) → 그리고 → 붙여넣는다.**
 > 알캡쳐(ALCapture) 류의 Windows 화면 캡쳐 · 주석 · 클립보드 도구 (개인용 / 포트폴리오)
 
-![status](https://img.shields.io/badge/status-development-blue)
+![status](https://img.shields.io/badge/status-working-brightgreen)
 ![platform](https://img.shields.io/badge/platform-Windows%2010%2F11-blue)
 ![stack](https://img.shields.io/badge/.NET%208-WPF-512BD4)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
-## 🚧 현재 상태
+## 🟢 현재 상태
 
-**설계 완료 · MVP 구현 착수** — 개발계획서·상세 기능명세서 작성 완료, .NET SDK 준비 후 구현 단계로 진입합니다.
+**동작(working)** — 필수 4대 기능 + 시스템 통합 + 창 캡쳐 + v2(단축키 재지정 · 트레이 상주)까지 구현·검증 완료. 빌드 0에러 / 0경고.
 
-- 📄 [개발계획서 (DEVELOPMENT_PLAN.md)](docs/DEVELOPMENT_PLAN.md) ✅
-- 📄 [상세 기능명세서 (FUNCTIONAL_SPEC.md)](docs/FUNCTIONAL_SPEC.md) ✅
+- 📄 [개발계획서](docs/DEVELOPMENT_PLAN.md) · [상세 기능명세서](docs/FUNCTIONAL_SPEC.md) · [진행 현황 / 핸드오프](docs/PROGRESS.md)
 
-## ✨ 핵심 기능 (목표)
+## ✨ 핵심 기능
 
 | 기능 | 설명 |
 |------|------|
-| 🖼 **캡쳐 히스토리** | 캡쳐한 이미지를 **순서대로** 썸네일 스트립에 누적, 언제든 다시 선택 |
-| 🎨 **페인팅 / 주석** | 펜·형광펜·도형·화살표·텍스트·번호·모자이크/블러·자르기 + Undo/Redo |
-| 📋 **클립보드 복사** | 편집한 이미지를 클립보드에 저장 (PNG+DIB 다중 포맷으로 호환성 확보) |
-| 📌 **외부 앱 붙여넣기** | 한글·Word·카카오톡 등 다른 프로그램에 Ctrl+V로 곧바로 붙여넣기 |
-| ✂️ 다양한 캡쳐 | 영역 지정 · 활성 창 · 전체 화면 · 직전 영역 재캡쳐 · 지연 캡쳐 |
-| ⚙️ 시스템 통합 | 전역 단축키 · 시스템 트레이 상주 · 설정 |
+| 🖼 **캡쳐 히스토리** | 캡쳐 이미지를 **순서대로** 썸네일 스트립에 누적, 새 캡쳐 자동 선택, 언제든 다시 선택 |
+| 🎨 **페인팅 / 주석** | 펜·형광펜·사각형·타원·직선·화살표·텍스트·번호·모자이크·자르기 (11개 도구) + Undo/Redo |
+| 📋 **클립보드 복사** | 편집 이미지를 클립보드에 저장 (PNG+DIB 다중 포맷) |
+| 📌 **외부 앱 붙여넣기** | 한글·Word·카카오톡 등에 `Ctrl+V`로 곧바로 붙여넣기 |
+| ✂️ **다양한 캡쳐** | 영역 · 창(가려져도 캡쳐) · 전체 화면 · 지연 캡쳐 |
+| ⚙️ **시스템 통합** | 전역 단축키(**재지정 가능**) · 시스템 트레이 **상주**(close-to-tray) · 설정 |
+
+## 🚀 빌드 · 실행
+
+> .NET 8 SDK 필요. (PATH 미등록 시 `$env:PATH = "C:\Program Files\dotnet;$env:PATH"`)
+
+```powershell
+# 빌드
+dotnet build src\SnapStack\SnapStack.csproj -c Debug
+
+# 실행
+dotnet run --project src\SnapStack\SnapStack.csproj
+# 또는 빌드 산출물 직접 실행
+src\SnapStack\bin\Debug\net8.0-windows\SnapStack.exe
+```
+
+## 📖 사용법
+
+### 1. 캡쳐
+상단 도구바 버튼 또는 전역 단축키로 캡쳐합니다. 캡쳐는 **순서대로 히스토리에 쌓이고**, 새 캡쳐는 자동 선택됩니다.
+
+| 캡쳐 | 방법 | 기본 단축키 |
+|------|------|-------------|
+| **영역** | 드래그로 영역 선택 | `Ctrl+Shift+A` |
+| **창** | 커서로 창을 가리켜 클릭 (가려져 있어도 캡쳐) | `Ctrl+Shift+W` |
+| **전체 화면** | 주 모니터 전체 | `Ctrl+Shift+F` |
+| **지연** | N초 후 캡쳐 (기본 3초) | `Ctrl+Shift+D` |
+
+> 설정 > 단축키 탭에는 *가상 전체 화면*·*직전 영역 재캡쳐* 슬롯도 표시됩니다(후속 연결 예정).
+
+### 2. 편집 / 주석
+히스토리 항목을 **더블클릭**하거나 **편집** 버튼으로 편집기를 엽니다.
+- 도구 11종: 펜 · 형광펜 · 사각형 · 타원 · 직선 · 화살표 · 텍스트 · 번호 · 모자이크 · 자르기 · 선택
+- 색 / 굵기 조절, Undo / Redo 지원
+- 적용하면 편집본이 히스토리 · 복사 · 저장 · 미리보기에 자동 반영
+
+### 3. 복사 · 붙여넣기
+**복사** 버튼(또는 편집기 내 복사) → 다른 앱에서 **`Ctrl+V`**. PNG+DIB 다중 포맷이라 한글·Word·카카오톡 등과 호환됩니다.
+
+### 4. 저장
+**저장** 버튼으로 PNG / JPG / BMP 저장. 기본 폴더·파일명 규칙·기본 포맷은 설정에서 지정합니다.
+
+### 5. ⚙️ 설정 (v2)
+도구바 **설정** 버튼으로 엽니다.
+
+- **단축키 탭 — 재지정**: 단축키 칸을 클릭한 뒤 원하는 키 조합을 누르면 바뀝니다. `Esc` / `Backspace` / `Delete` = 비우기. **저장**하면 즉시 적용됩니다(같은 조합이 둘 이상이면 저장 거부, 타 앱이 선점한 키는 알림).
+- **트레이 탭 — 상주(close-to-tray)**:
+  - *창을 닫으면 종료하지 않고 트레이로 최소화* (기본 **ON**) — 메인창 **✕** 를 눌러도 종료되지 않고 트레이에 상주합니다.
+  - *창을 최소화하면 트레이로 숨김* (기본 OFF)
+  - 트레이 아이콘 **더블클릭** 또는 우클릭 → **열기**로 창 복원, 우클릭 → **종료**로 앱 완전 종료.
+- 그 외: 기본 저장 폴더 / 포맷, 지연 시간, 캡쳐 후 편집기 자동 열기, 히스토리 영속화 등.
 
 ## 🛠 기술 스택
 
-- **언어/런타임**: C# 12, .NET 8 (LTS)
-- **UI**: WPF + MVVM (CommunityToolkit.Mvvm)
+- **언어 / 런타임**: C# 12, .NET 8 (LTS)
+- **UI**: WPF + MVVM (CommunityToolkit.Mvvm) · Microsoft.Extensions.DependencyInjection
 - **플랫폼**: Windows 10 / 11 (x64) 전용
-- **주요 기술**: Win32 Interop(BitBlt·RegisterHotKey·Clipboard), WPF InkCanvas, Per-Monitor DPI
-
-## 🗺 로드맵
-
-```
-M0 셋업 → M1 캡쳐코어 → M2 히스토리(순서대로) → M3 편집/페인팅 → M4 클립보드/붙여넣기 → M5 시스템통합 → M6 배포
-```
-
-자세한 내용은 [개발계획서](docs/DEVELOPMENT_PLAN.md)를 참고하세요.
-
-## ⚡ 개발 환경 (착수 전 필요)
-
-```powershell
-# .NET 8 SDK 설치 후
-dotnet --version
-dotnet new wpf -n SnapStack -o src/SnapStack
-```
+- **주요 기술**: Win32 Interop(BitBlt · PrintWindow · RegisterHotKey · Clipboard), WPF InkCanvas, Per-Monitor V2 DPI, WinForms NotifyIcon(트레이)
 
 ## 📄 라이선스
 
